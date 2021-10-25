@@ -161,7 +161,6 @@ export const getClubApprovals = async (req,res) => {
 
     try {
         club = await clubModel.findOne({ _id: clubId }, "presidentid");
-
     } catch (error) {
         return dataUnaccesable(res);
     }
