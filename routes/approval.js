@@ -1,9 +1,10 @@
 import express from "express";
 import mongoose from "mongoose";
 import nodemailer from "nodemailer";
+import { google } from "googleapis";
 import approvalModel from "../models/approvals.js";
 import { approveApproval, declineApproval } from "../controllers/approvals.js";
-import { google } from "googleapis";
+import { notValid, notAuthorized, notFound, emailNotSent, dataUnaccesable, notLoggedIn } from "../alerts/errors.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -53,14 +54,6 @@ router.get("/:approvalId/approve", async function (req, res, next) {
 
     const approve = await approveApproval(req, res);
 
-    if (Object.prototype.toString.call(approve) === "[object Error]") {
-        res.status(approve.status)
-        req.flash("message", approve.message);
-        req.flash("status", approve.status);
-        res.redirect("/home");
-        return;
-    }
-    else {
         res.status(200)
         req.flash("message", "The Approval approved Successfully.");
         req.flash("status", 200);
@@ -75,18 +68,9 @@ router.get("/:approvalId/approve", async function (req, res, next) {
 
         let approveMail = async (mailOptions) => {
             let transporter = await createTransporter();
-            transporter.sendMail(mailOptions, function (error, info) {
-                error.message = "Unable to send mail right now.";
-                error.status = 500;
-                res.status(error.status)
-                req.flash("message", error.message);
-                req.flash("status", error.status);
-            });
+            transporter.sendMail(mailOptions, (error, info) => { if(error) return emailNotSent(res); });
         }
         await approveMail(mailOptions);
-    }
-
-    res.redirect(`/club/${approve.clubid._id}`);
 
     res.redirect(`/club/${approve.clubid._id}`);
 
@@ -96,15 +80,6 @@ router.get("/:approvalId/decline", async function (req, res, next) {
 
     const decline = await declineApproval(req, res);
 
-    if (Object.prototype.toString.call(decline) === "[object Error]") {
-
-        res.status(decline.status)
-        req.flash("message", decline.message);
-        req.flash("status", decline.status);
-        res.redirect("/home");
-        return;
-    }
-    else {
         res.status(200)
         req.flash("message", "The Approval declined Successfully.");
         req.flash("status", 200);
@@ -118,16 +93,9 @@ router.get("/:approvalId/decline", async function (req, res, next) {
 
         let declineMail = async (mailOptions) => {
             let transporter = await createTransporter();
-            transporter.sendMail(mailOptions, function (error, info) {
-                error.message = "Unable to send mail right now.";
-                error.status = 500;
-                res.status(error.status)
-                req.flash("message", error.message);
-                req.flash("status", error.status);
-            });
+            transporter.sendMail(mailOptions, (error, info) => { if(error) return emailNotSent(res); });
         }
         await declineMail(mailOptions);
-    }
 
     res.redirect(`/club/${decline.clubid._id}`);
 
@@ -135,27 +103,14 @@ router.get("/:approvalId/decline", async function (req, res, next) {
 
 router.get("/:approvalId/meet", async function (req, res, next) {
 
-    if (req.session.passport === undefined) {
-        var err = new Error("You are not logged in.");
-        err.status = 400;
-        res.status(err.status)
-        req.flash("message", err.message);
-        req.flash("status", err.status);
-        res.redirect("/home");
-        return;
-    }
+    if (req.session.passport === undefined)
+    return notLoggedIn(res);
 
     const { approvalId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(approvalId)) {
-        var err = new Error("The Approval doesn't exsist.");
-        err.status = 406;
-        res.status(err.status)
-        req.flash("message", err.message);
-        req.flash("status", err.status);
-        res.redirect("/home");
-        return;
-    }
+    if (!mongoose.Types.ObjectId.isValid(approvalId))
+    return notValid(res);
+
     var approval;
 
     try {
@@ -164,33 +119,14 @@ router.get("/:approvalId/meet", async function (req, res, next) {
             .populate("studentid", "name");
 
     } catch (error) {
-        error.message = "Unable to access database.";
-        res.status(error.status)
-        req.flash("message", error.message);
-        req.flash("status", error.status);
-        res.redirect("/home");
-        return;
+        return dataUnaccesable(res);
     }
 
-    if (approval == null) {
-        var err = new Error("The Approval doesn't exsist.");
-        err.status = 400;
-        res.status(err.status)
-        req.flash("message", err.message);
-        req.flash("status", err.status);
-        res.redirect("/home");
-        return;
-    }
+    if (approval == null)
+    return notFound(res,"Approval");
 
-    if (req.session.passport.user != approval.clubid.presidentid) {
-        var err = new Error("You are not president of club.");
-        err.status = 400;
-        res.status(err.status)
-        req.flash("message", err.message);
-        req.flash("status", err.status);
-        res.redirect(`/club/${approval.clubid._id}`);
-        return;
-    }
+    if (req.session.passport.user != approval.clubid.presidentid)
+    return notAuthorized(res);
 
     res.render('scheduleInterview',{ approval });
 
@@ -198,27 +134,13 @@ router.get("/:approvalId/meet", async function (req, res, next) {
 
 router.post("/:approvalId/meet", async function (req, res, next) {
 
-    if (req.session.passport === undefined) {
-        var err = new Error("You are not logged in.");
-        err.status = 400;
-        res.status(err.status)
-        req.flash("message", err.message);
-        req.flash("status", err.status);
-        res.redirect("/home");
-        return;
-    }
+    if (req.session.passport === undefined)
+    return notLoggedIn(res);
 
     const { approvalId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(approvalId)) {
-        var err = new Error("The Approval doesn't exsist.");
-        err.status = 406;
-        res.status(err.status)
-        req.flash("message", err.message);
-        req.flash("status", err.status);
-        res.redirect("/home");
-        return;
-    }
+    if (!mongoose.Types.ObjectId.isValid(approvalId))
+    return notValid(res);
 
     const body = req.body;
 
@@ -242,33 +164,14 @@ router.post("/:approvalId/meet", async function (req, res, next) {
             .populate("clubid", ["name", "presidentid"]);
 
     } catch (error) {
-        error.message = "Unable to access database.";
-        res.status(error.status)
-        req.flash("message", error.message);
-        req.flash("status", error.status);
-        res.redirect("/home");
-        return;
+        return dataUnaccesable(res);
     }
 
-    if (approval == null) {
-        var err = new Error("The Approval doesn't exsist.");
-        err.status = 400;
-        res.status(err.status)
-        req.flash("message", err.message);
-        req.flash("status", err.status);
-        res.redirect("/home");
-        return;
-    }
+    if (approval == null)
+    return notFound(res,"Approval");
 
-    if (req.session.passport.user != approval.clubid.presidentid) {
-        var err = new Error("You are not president of club.");
-        err.status = 400;
-        res.status(err.status)
-        req.flash("message", err.message);
-        req.flash("status", err.status);
-        res.redirect(`/club/${approval.clubid._id}`);
-        return;
-    }
+    if (req.session.passport.user != approval.clubid.presidentid)
+    return notAuthorized(res);
 
     var mailOptions = {
         from: process.env.EMAIL,
@@ -280,21 +183,7 @@ router.post("/:approvalId/meet", async function (req, res, next) {
 
     let scheduleMail = async (mailOptions) => {
         let transporter = await createTransporter();
-        transporter.sendMail(mailOptions)
-            .then(() => {
-                res.status(200)
-                req.flash("message", "The Meeting is Scheduled Successfully.");
-                req.flash("status", 200);
-                res.redirect(`/club/${approval.clubid._id}`);
-            })
-            .catch((error) => {
-                error.message = "Unable to send mail right now.";
-                error.status = 500;
-                res.status(error.status)
-                req.flash("message", error.message);
-                req.flash("status", error.status);
-                res.redirect(`/club/${approval.clubid._id}`);
-            });
+        transporter.sendMail(mailOptions, (error, info) => { if(error) return emailNotSent(res); });
     };
     await scheduleMail(mailOptions);
 

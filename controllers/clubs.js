@@ -1,25 +1,22 @@
 import mongoose from "mongoose";
 import clubModel from "../models/clubs.js";
 import studentModel from "../models/students.js";
+import { notValid, notAuthorized, notFound, dataUnaccesable, notLoggedIn } from "../alerts/errors.js";
 
 export const getClub = async (req, res) => {
 
     const { clubId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(clubId)) {
-        var err = new Error("Club not found.");
-        err.status = 406;
-        return err;
-    }
+    if (!mongoose.Types.ObjectId.isValid(clubId))
+    return notValid(res);
+
     var club0;
 
     try {
         club0 = await clubModel.findOne({ _id: clubId });
 
     } catch (error) {
-        error.message = "Unable to connect with database.";
-        return error;
-
+        return dataUnaccesable(res);
     }
 
     if(club0 != null)
@@ -32,15 +29,11 @@ export const getClub = async (req, res) => {
             return club;
 
         } catch (error) {
-            error.message = "Unable to connect with database.";
-            return error;
+            return dataUnaccesable(res);
         }
     }
-    else {
-        var err = new Error("The Club doesn't exsist.");
-        err.status = 406;
-        return err;
-    }
+    else  
+    return notFound(res,"Club");
 
 };
 
@@ -51,8 +44,7 @@ export const getTechClubs = async (req, res) => {
         return clubs;
 
     } catch (error) {
-        error.message = "Unable to connect with database.";
-        return error;
+        return dataUnaccesable(res);
     }
 
 };
@@ -64,8 +56,7 @@ export const getCultClubs = async (req, res) => {
         return clubs;
 
     } catch (error) {
-        error.message = "Unable to connect with database.";
-        return error;
+        return dataUnaccesable(res);
     }
 
 };
@@ -73,20 +64,12 @@ export const getCultClubs = async (req, res) => {
 export const putClub = async (req, res) => {
 
     if(req.session.passport === undefined)
-    {
-        var err = new Error("You are not logged in.");
-        err.status = 400;
-        return err;
-    }
+    return notLoggedIn(res);
 
     const { clubId } = req.params;
 
     if(!mongoose.Types.ObjectId.isValid(clubId))
-    {
-        var err = new Error("The Club doesn't exist.");
-        err.status = 406;
-        return err;
-    }
+    return notValid(res);
 
     var body = req.body;
     var club;
@@ -95,19 +78,13 @@ export const putClub = async (req, res) => {
         club = await clubModel.findById(clubId);
 
     } catch (error) {
-        error.message = "Unable to connect with database.";
-        return error;
-
+        return dataUnaccesable(res);
     }
 
     if (club != null) 
     {
         if(req.session.passport.user != club.presidentid )
-        {
-            var err = new Error("You are not president of club.");
-            err.status = 400;
-            return err;
-        }
+        return notAuthorized(res);
 
         try {
             if(!(req.file === undefined))
@@ -128,35 +105,24 @@ export const putClub = async (req, res) => {
             return (await clubModel.findOne(body));
 
         } catch (error) {
-            error.status = 400;
+            error.status = 406;
             error.message = "The club name already exist.";
             return error;
         }
     }
-    else {
-        var err = new Error("The Club doesn't exsist.");
-        err.status = 406;
-        return err;
-    }
+    else  
+    return notFound(res,"Club");
 };
 
 export const delClub = async (req, res) => {
 
     if(req.session.passport === undefined)
-    {
-        var err = new Error("You are not logged in.");
-        err.status = 400;
-        return err;
-    }
+    return notLoggedIn(res);
 
     const { clubId } = req.params;
 
     if(!mongoose.Types.ObjectId.isValid(clubId))
-    {
-        var err = new Error("The Club doesn't exsist.");
-        err.status = 406;
-        return err;
-    }
+    return notValid(res);
 
     const body = req.body;
     var club;
@@ -165,19 +131,13 @@ export const delClub = async (req, res) => {
         club = await clubModel.findOne({ _id: clubId });
 
     } catch (error) {
-        error.message = "Unable to connect with database.";
-        return error;
-
+        return dataUnaccesable(res);
     }
 
     if (club != null) 
     {
         if(req.session.passport.user != club.presidentid )
-        {
-            var err = new Error("You are not president of club.");
-            err.status = 400;
-            return err;
-        }
+        return notAuthorized(res);
 
         try {
             if(club.image != undefined)
@@ -192,57 +152,36 @@ export const delClub = async (req, res) => {
             return body;
 
         } catch (error) {
-            error.message = "Unable to connect with database.";
-            return error;
+            return dataUnaccesable(res);
         }
     }
-    else {
-        var err = new Error("The Club doesn't exsist.");
-        err.status = 406;
-        return err;
-    }
+    else  
+    return notFound(res,"Club");
 };
 
 export const removeMember = async (req,res) => {
 
     if(req.session.passport === undefined)
-    {
-        var err = new Error("You are not logged in.");
-        err.status = 400;
-        return err;
-    }
+    return notLoggedIn(res);
 
     const { clubId, studentId } = req.params;
 
     if(!mongoose.Types.ObjectId.isValid(clubId))
-    {
-        var err = new Error("The Club doesn't exsist.");
-        err.status = 406;
-        return err;
-    }
+    return notValid(res);
 
     if(!mongoose.Types.ObjectId.isValid(studentId))
-    {
-        var err = new Error("The Student doesn't exsist.");
-        err.status = 406;
-        return err;
-    }
+    return notValid(res);
 
     var student;
 
     try {
         student = await studentModel.findById(studentId);        
     } catch (error) {
-        error.message = "Unable to connect with database.";
-        return error;           
+        return dataUnaccesable(res);           
     }
 
-    if(student === null)
-    {
-        var err = new Error("The Student doesn't exsist.");
-        err.status = 406;
-        return err;
-    }
+    if(student === null)  
+    return notFound(res,"Student");
 
     var club;
 
@@ -250,19 +189,13 @@ export const removeMember = async (req,res) => {
         club = await clubModel.findOne({ _id: clubId });
 
     } catch (error) {
-        error.message = "Unable to connect with database.";
-        return error;
-
+        return dataUnaccesable(res);
     }
 
     if (club != null) 
     {
         if(req.session.passport.user != club.presidentid )
-        {
-            var err = new Error("You are not president of club.");
-            err.status = 400;
-            return err;
-        }
+        return notAuthorized(res);
 
         if(club.memberids.indexOf(student._id) === -1)
         {
@@ -276,23 +209,17 @@ export const removeMember = async (req,res) => {
             return  { student, club };
 
         } catch (error) {
-            error.message = "Unable to connect with database.";
-            return error;
+            return dataUnaccesable(res);
         }
     }
-    else {
-        var err = new Error("The Club doesn't exsist.");
-        err.status = 406;
-        return err;
-    }
+    else   
+    return notFound(res,"Club");
 };
 
 export const getJoinButton = async (req,res) => {
 
     if(req.session.passport === undefined)
-    {
-        return false;
-    }
+    return false;
 
     const { clubId } = req.params;
 
@@ -302,14 +229,11 @@ export const getJoinButton = async (req,res) => {
         memcheck = await clubModel.find({ _id: clubId, memberids: { $elemMatch: { $eq: req.session.passport.user } } });
         
     } catch (error) {
-        error.message = "Unable to connect with database.";
-        return error;        
+        return dataUnaccesable(res);       
     }
 
     if(memcheck.length === 0)
-    {
-        return true;
-    }
+    return true;
 
     return false;
 
@@ -318,9 +242,7 @@ export const getJoinButton = async (req,res) => {
 export const getVerifyPresident = async (req,res) => {
 
     if(req.session.passport === undefined)
-    {
-        return false;
-    }
+    return false;
 
     const { clubId } = req.params;
 
@@ -330,14 +252,11 @@ export const getVerifyPresident = async (req,res) => {
         prescheck = await clubModel.find({ _id: clubId, presidentid: req.session.passport.user });
         
     } catch (error) {
-        error.message = "Unable to connect with database.";
-        return error;        
+        return dataUnaccesable(res);       
     }
 
     if(prescheck.length >= 1)
-    {
-        return true;
-    }
+    return true;
 
     return false;
 

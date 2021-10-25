@@ -17,36 +17,6 @@ router.get('/', async function(req,res,next) {
         var studentName=req.user.name;
         var studentId=req.session.passport.user;
     }
-
-    switch ("[object Error]") {
-        case Object.prototype.toString.call(techClubs):
-            if((techClubs.status) < 500)
-            res.status(techClubs.status).send(techClubs.message);
-            else
-            next(techClubs.message);
-            break;
-        
-        case Object.prototype.toString.call(cultClubs):
-            if((cultClubs.status) < 500)
-            res.status(cultClubs.status).send(cultClubs.message);
-            else
-            next(cultClubs.message);
-            break;
-        
-        case Object.prototype.toString.call(recentevents):
-            if((recentevents.status) < 500)
-            res.status(recentevents.status).send(recentevents.message);
-            else
-            next(recentevents.message);
-            break;
-    
-        default:
-            if(isLoggedIn)
-            res.status(200).render('home', {techClubs, cultClubs, recentevents, isLoggedIn, studentName, studentId,  message: req.flash("message"), status: req.flash("status")});
-            else
-            res.status(200).render('home', {techClubs, cultClubs, recentevents, isLoggedIn, message: req.flash("message"), status: req.flash("status") });
-            break;
-    }
     
 });
 

@@ -1,24 +1,17 @@
 import mongoose from "mongoose";
 import approvalModel from "../models/approvals.js";
 import clubModel from "../models/clubs.js";
+import { notValid, notAuthorized, notFound, dataUnaccesable, notLoggedIn } from "../alerts/errors.js";
 
 export const approveApproval = async (req,res) => {
 
     if(req.session.passport === undefined)
-    {
-        var err = new Error("You are not logged in.");
-        err.status = 400;
-        return err;
-    }
+    return notLoggedIn(res);
 
     const { approvalId } = req.params;
 
     if(!mongoose.Types.ObjectId.isValid(approvalId))
-    {
-        var err = new Error("The Approval doesn't exsist.");
-        err.status = 406;
-        return err;
-    }
+    return notValid(res);
 
     var approval;
 
@@ -27,18 +20,13 @@ export const approveApproval = async (req,res) => {
                                       .populate("clubid", "presidentid");
 
     } catch (error) {
-        error.message = "Unable to connect to database.";
-        return error;
+        return dataUnaccesable(res);
     }
     
     if(approval != null)
     {
         if(req.session.passport.user != approval.clubid.presidentid )
-        {
-            var err = new Error("You are not president of club.");
-            err.status = 400;
-            return err;
-        }
+        return notAuthorized(res);
 
         try {
             await approvalModel.updateOne({ _id: approvalId }, { approved: true });
@@ -50,35 +38,22 @@ export const approveApproval = async (req,res) => {
             return approval;
         
         } catch (error) {
-            error.message = "Unable to connect with database.";
-            return error;
+            return dataUnaccesable(res);
         }
     }
-    else
-    {
-        var err = new Error("The Approval doesn't exsist.");
-        err.status = 400;
-        return err;
-    }
+    else  
+    return notFound(res,"Approval");
 };
 
 export const declineApproval = async (req,res) => {
 
     if(req.session.passport === undefined)
-    {
-        var err = new Error("You are not logged in.");
-        err.status = 400;
-        return err;
-    }
+    return notLoggedIn(res);
 
     const { approvalId } = req.params;
 
     if(!mongoose.Types.ObjectId.isValid(approvalId))
-    {
-        var err = new Error("The Approval doesn't exsist.");
-        err.status = 406;
-        return err;
-    }
+    return notValid(res);
 
     var approval;
 
@@ -87,18 +62,13 @@ export const declineApproval = async (req,res) => {
                                       .populate("clubid", "presidentid");
 
     } catch (error) {
-        error.message = "Unable to connect to database.";
-        return error;
+        return dataUnaccesable(res);
     }
     
     if(approval != null)
     {
         if(req.session.passport.user != approval.clubid.presidentid )
-        {
-            var err = new Error("You are not president of club.");
-            err.status = 400;
-            return err;
-        }
+        return notAuthorized(res);
 
         try {
             await approvalModel.updateOne({ _id: approvalId }, { declined: true });
@@ -108,36 +78,23 @@ export const declineApproval = async (req,res) => {
             return approval;
         
         } catch (error) {
-            error.message = "Unable to connect with database.";
-            return error;
+            return dataUnaccesable(res);
         }
     }
-    else
-    {
-        var err = new Error("The Approval doesn't exsist.");
-        err.status = 400;
-        return err;
-    }
+    else  
+    return notFound(res,"Approval");
 };
 
 
 export const postApproval = async (req,res) => {
 
     if(req.session.passport === undefined)
-    {
-        var err = new Error("You are not logged in.");
-        err.status = 400;
-        return err;
-    }
+    return notLoggedIn(res);
 
     const { clubId } = req.params;
     
     if(!mongoose.Types.ObjectId.isValid(clubId))
-    {
-        var err = new Error("The Club doesn't exsist.");
-        err.status = 406;
-        return err; 
-    }
+    return notValid(res);
 
     var club;
 
@@ -145,10 +102,12 @@ export const postApproval = async (req,res) => {
         club = await clubModel.findOne({ _id: clubId });
 
     } catch (error) {
-        error.message = "Unable to connect with database.";
-        return error;
+        return dataUnaccesable(res);
 
     }
+
+    if(club == null)
+    return notFound(res,"Club");
 
     if(club.memberids.find((member) => member == req._passport.session.user))
     {
@@ -162,9 +121,7 @@ export const postApproval = async (req,res) => {
     try {
         checkapproval = await approvalModel.find({ studentid: req._passport.session.user, clubid: clubId});
     } catch (error) {
-        error.message = "Unable to access database";
-        return error;
-        
+        return dataUnaccesable(res);        
     }
 
     if(checkapproval.length != 0)
@@ -183,31 +140,22 @@ export const postApproval = async (req,res) => {
             return null;
             
         } catch (error) {
-            error.message = "Unable to access database.";
-            return error;            
+            return dataUnaccesable(res);           
         }
     }
-    else {
-        var err = new Error("The Club doesn't exsist.");
-        err.status = 406;
-        return err;
-    }
+    else  
+    return notFound(res,"Club");
 };
 
 export const getClubApprovals = async (req,res) => {
 
     if(req.session.passport === undefined)
-    {
-        return [];
-    }
+    return [];
 
     const { clubId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(clubId)) {
-        var err = new Error("Club not found.");
-        err.status = 406;
-        return err;
-    }
+    if (!mongoose.Types.ObjectId.isValid(clubId))
+    return notValid(res);
     
     var club;
 
@@ -215,17 +163,13 @@ export const getClubApprovals = async (req,res) => {
         club = await clubModel.findOne({ _id: clubId }, "presidentid");
 
     } catch (error) {
-        error.message = "Unable to connect with database.";
-        return error;
-
+        return dataUnaccesable(res);
     }
     
     if(club != null)
     {
         if(req.session.passport.user != club.presidentid )
-        {
-            return [];
-        }
+        return [];
 
         try {
             const clubapprovals = await approvalModel.find({ clubid: clubId, approved: false, declined: false }, "studentid")
@@ -233,14 +177,9 @@ export const getClubApprovals = async (req,res) => {
             return clubapprovals;
         
         } catch (error) {
-            error.message = "Unable to connect with database.";
-            return error;
+            return dataUnaccesable(res);
         }
     }
-    else
-    {
-        var err = new Error("The Club doesn't exsist.")
-        err.status = 400;
-        return err;
-    }
+    else  
+    return notFound(res,"Approval");
 };
