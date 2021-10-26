@@ -35,9 +35,6 @@ router.post("/:studentId/", async function(req,res,next){
         res.status(200)
         req.flash("message", "The student is updated successfully." );
         req.flash("status", 200);
-
-    res.redirect(`/student/${req.params.studentId}/profile`);
-
 });
 
 router.post("/:studentId/delete", async function(req,res,next){
@@ -47,8 +44,6 @@ router.post("/:studentId/delete", async function(req,res,next){
         res.status(200)
         req.flash("message", "The student is deleted successfully." );
         req.flash("status", 200);
-
-    res.redirect("/home");
 
 });
 

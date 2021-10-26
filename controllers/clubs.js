@@ -26,7 +26,7 @@ export const getClub = async (req, res) => {
                                         .populate("memberids", "name")
                                         .populate("presidentid", "name")
                                         .populate("eventids", ["name", "image"]);
-            return club;
+            return res.status(200).json({ club });
 
         } catch (error) {
             return dataUnaccesable(res);
@@ -37,23 +37,11 @@ export const getClub = async (req, res) => {
 
 };
 
-export const getTechClubs = async (req, res) => {
+export const getClubs = async (req, res) => {
 
     try {
-        const clubs = await clubModel.find({ typeofclub: "Technical" }, ["name", "image"]);
-        return clubs;
-
-    } catch (error) {
-        return dataUnaccesable(res);
-    }
-
-};
-
-export const getCultClubs = async (req, res) => {
-
-    try {
-        const clubs = await clubModel.find({ typeofclub: "Cultural" }, ["name", "image"]);
-        return clubs;
+        const clubs = await clubModel.find({ }, ["name", "image", "typeofclub"]);
+        return res.status(200).json({ clubs });
 
     } catch (error) {
         return dataUnaccesable(res);
@@ -102,54 +90,8 @@ export const putClub = async (req, res) => {
             }
 
             await clubModel.updateOne({ _id: clubId }, body);
-            return (await clubModel.findOne(body));
-
-        } catch (error) {
-            error.status = 406;
-            error.message = "The club name already exist.";
-            return error;
-        }
-    }
-    else  
-    return notFound(res,"Club");
-};
-
-export const delClub = async (req, res) => {
-
-    if(req.session.passport === undefined)
-    return notLoggedIn(res);
-
-    const { clubId } = req.params;
-
-    if(!mongoose.Types.ObjectId.isValid(clubId))
-    return notValid(res);
-
-    const body = req.body;
-    var club;
-
-    try {
-        club = await clubModel.findOne({ _id: clubId });
-
-    } catch (error) {
-        return dataUnaccesable(res);
-    }
-
-    if (club != null) 
-    {
-        if(req.session.passport.user != club.presidentid )
-        return notAuthorized(res);
-
-        try {
-            if(club.image != undefined)
-            {
-                var gfs;
-                const conn = mongoose.connection;
-                gfs = new mongoose.mongo.GridFSBucket(conn.db, { bucketName: "Images" });
-
-                await gfs.delete(new mongoose.Types.ObjectId(club.image));
-            }
-            await clubModel.deleteOne({ _id: clubId });
-            return body;
+            club = await clubModel.findById(clubId);
+            return res.status(200).json({ club });
 
         } catch (error) {
             return dataUnaccesable(res);
@@ -200,13 +142,13 @@ export const removeMember = async (req,res) => {
         if(club.memberids.indexOf(student._id) === -1)
         {
             var err = new Error("The Student is not member of this club.")
-            err.status = 400;
-            return err;
+            err.status = 403;
+            return res.status(err.status).json({ err });
         }
 
         try {
             await clubModel.updateOne({ _id: clubId }, { $pull: { memberids: studentId }});
-            return  { student, club };
+            return res.status(200).json({ studentId, clubId });
 
         } catch (error) {
             return dataUnaccesable(res);
@@ -214,50 +156,4 @@ export const removeMember = async (req,res) => {
     }
     else   
     return notFound(res,"Club");
-};
-
-export const getJoinButton = async (req,res) => {
-
-    if(req.session.passport === undefined)
-    return false;
-
-    const { clubId } = req.params;
-
-    var memcheck;
-
-    try {
-        memcheck = await clubModel.find({ _id: clubId, memberids: { $elemMatch: { $eq: req.session.passport.user } } });
-        
-    } catch (error) {
-        return dataUnaccesable(res);       
-    }
-
-    if(memcheck.length === 0)
-    return true;
-
-    return false;
-
-};
-
-export const getVerifyPresident = async (req,res) => {
-
-    if(req.session.passport === undefined)
-    return false;
-
-    const { clubId } = req.params;
-
-    var prescheck;
-
-    try {
-        prescheck = await clubModel.find({ _id: clubId, presidentid: req.session.passport.user });
-        
-    } catch (error) {
-        return dataUnaccesable(res);       
-    }
-
-    if(prescheck.length >= 1)
-    return true;
-
-    return false;
-
 };

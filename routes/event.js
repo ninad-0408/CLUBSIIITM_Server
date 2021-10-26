@@ -55,8 +55,6 @@ router.post("/:eventId", imageUpload.single("image"), async function(req,res,nex
         res.status(200)
         req.flash("message", "The event is updated successfully." );
         req.flash("status", 200);
-
-    res.redirect(`/event/${event._id}`);
 });
 
 router.post("/:eventId/delete", async function(req,res,next) {
@@ -66,8 +64,6 @@ router.post("/:eventId/delete", async function(req,res,next) {
         res.status(200)
         req.flash("message", "The event is deleted successfully." );
         req.flash("status", 200);
-
-    res.redirect("/home");
 });
 
 export default router;

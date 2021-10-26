@@ -27,7 +27,7 @@ export const getEvent = async (req,res) => {
 
     try {
         const event = await eventModel.findOne({ _id: eventId });
-        return event;
+        return res.status(200).json({ event });
         
     } catch (error) {
         return dataUnaccesable(res);
@@ -45,7 +45,7 @@ export const getUpcomingEvents = async (req,res) => {
                                        .limit(3)
                                        .select("name");
         
-        return events;
+        return res.status(200).json({ upcomingEvents });
         
     } catch (error) {
         return dataUnaccesable(res);
@@ -88,14 +88,13 @@ export const postEvent = async (req,res) => {
             
             try {
                 await clubModel.findOneAndUpdate({ _id: clubId }, { $push: { eventids: newevent._id } });
-                return newevent;
+                return res.status(200).json({ newEvent: newevent, message: "Event created successfully.", clubId });
             } catch (error) {
                 return dataUnaccesable(res);          
             }
         
         } catch (error) {
-            error.message = "Meetlink or Event name already exsists or Date entered is invalid.";
-            return error;     
+            return dataUnaccesable(res);    
         }
     }
     else  
@@ -146,11 +145,11 @@ export const putEvent = async (req,res) => {
             }
             
             await eventModel.updateOne({ _id: eventId }, body);
-            return await eventModel.findOne(body);
+            event = await eventModel.findById(eventId);
+            return res.status(200).json({ event, clubId: club._id, message: "Event updated successfully." })
         
         } catch (error) {
-            error.message = "Meetlink or Event name already exsists or date entered is invalid.";
-            return error;
+            return dataUnaccesable(res); 
         }
     }
     else  
@@ -195,7 +194,7 @@ export const delEvent = async (req,res) => {
 
             await clubModel.findByIdAndUpdate(club._id,{ $pull: { eventids: event._id } });
             await eventModel.deleteOne({ _id: eventId });
-            return event;
+            return res.status(200).json({ eventId, clubId: club._id, message: "Event deleted successfully." })
         
         } catch (error) {
             return dataUnaccesable(res);

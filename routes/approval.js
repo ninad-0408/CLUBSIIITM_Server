@@ -72,8 +72,6 @@ router.get("/:approvalId/approve", async function (req, res, next) {
         }
         await approveMail(mailOptions);
 
-    res.redirect(`/club/${approve.clubid._id}`);
-
 });
 
 router.get("/:approvalId/decline", async function (req, res, next) {
@@ -96,8 +94,6 @@ router.get("/:approvalId/decline", async function (req, res, next) {
             transporter.sendMail(mailOptions, (error, info) => { if(error) return emailNotSent(res); });
         }
         await declineMail(mailOptions);
-
-    res.redirect(`/club/${decline.clubid._id}`);
 
 });
 

@@ -35,7 +35,7 @@ export const approveApproval = async (req,res) => {
                                           .populate("clubid", "name");
 
             await clubModel.findByIdAndUpdate(approval.clubid, { $push: { memberids: approval.studentid._id }});
-            return approval;
+            return res.status(200).json({ approval });
         
         } catch (error) {
             return dataUnaccesable(res);
@@ -75,7 +75,7 @@ export const declineApproval = async (req,res) => {
             approval = await approvalModel.findById(approvalId)
                                           .populate("studentid", [ "name", "email" ])
                                           .populate("clubid", "name");
-            return approval;
+            return res.status(200).json({ approvalId });
         
         } catch (error) {
             return dataUnaccesable(res);
@@ -113,7 +113,7 @@ export const postApproval = async (req,res) => {
     {
         var err = new Error("You are already member of this club.");
         err.status = 400;
-        return err;
+        return res.status(err.status).json({ err });
     }
 
     var checkapproval;
@@ -126,25 +126,21 @@ export const postApproval = async (req,res) => {
 
     if(checkapproval.length != 0)
     {
-        var err = new Error("You have already submitted the approval.");
+        var err = new Error("You have already submitted the approval for this club.");
         err.status = 400;
-        return err;
+        return res.status(err.status).json({ err });
     }
 
-    if(club != null)
-    {
-        const approval = { studentid: req._passport.session.user, clubid: clubId};
-        const newapproval = new approvalModel(approval);
-        try {
-            await newapproval.save();
-            return null;
+    const approval = { studentid: req._passport.session.user, clubid: clubId};
+    const newapproval = new approvalModel(approval);
+    try {
+        await newapproval.save();
+        return res.status(200).json({ message: "Approval is submitted successfully."});
             
-        } catch (error) {
-            return dataUnaccesable(res);           
-        }
+    } catch (error) {
+        return dataUnaccesable(res);           
     }
-    else  
-    return notFound(res,"Club");
+    
 };
 
 export const getClubApprovals = async (req,res) => {
@@ -173,12 +169,12 @@ export const getClubApprovals = async (req,res) => {
         try {
             const clubapprovals = await approvalModel.find({ clubid: clubId, approved: false, declined: false }, "studentid")
                                                      .populate("studentid", "name");
-            return clubapprovals;
+            return res.status(200).json({ clubapprovals, clubId });
         
         } catch (error) {
             return dataUnaccesable(res);
         }
     }
     else  
-    return notFound(res,"Approval");
+    return notFound(res,"Club");
 };

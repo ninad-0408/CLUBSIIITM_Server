@@ -24,7 +24,7 @@ export const getStudent = async (req, res) => {
     if(student === null)  
     return notFound(res,"Student");
 
-    return student;
+    return res.status(200).json({ student })
 };
 
 export const putStudent = async (req, res) => {
@@ -58,7 +58,7 @@ export const putStudent = async (req, res) => {
         return dataUnaccesable(res);          
     }
 
-    return { message: "The profile is updated successfully." };
+    return res.status(200).json({ student, message: "The profile is updated successfully." });
 };
 
 export const delStudent = async (req, res) => {
@@ -92,7 +92,5 @@ export const delStudent = async (req, res) => {
         return dataUnaccesable(res);          
     }
 
-    // Logging out remaining.
-
-    return { message: "The profile is deleted successfully." };
+    return res.status(200).json({ studentId, message: "The profile is deleted successfully." });
 };

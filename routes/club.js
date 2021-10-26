@@ -80,8 +80,6 @@ router.post("/:clubId", imageUpload.single("image"), async function(req,res,next
         res.status(200)
         req.flash("message", "The club is updated successfully." );
         req.flash("status", 200);
-
-    res.redirect(`/club/${req.params.clubId}`);
 });
 
 router.get("/:clubId/event", async function (req, res, next) {
@@ -121,8 +119,6 @@ router.post("/:clubId/event", imageUpload.single("image"), async function (req, 
         req.flash("message", "The Event is created Successfully." );
         req.flash("status", 200);
 
-    res.redirect(`/club/${req.params.clubId}`);
-
 });
 
 router.post("/:clubId/approval", async function(req,res,next) {
@@ -132,9 +128,6 @@ router.post("/:clubId/approval", async function(req,res,next) {
         res.status(200)
         req.flash("message", "Your approval has been submitted successfully." );
         req.flash("status", 200);
-
-
-    res.redirect(`/club/${req.params.clubId}`);
 
 });
 
@@ -158,8 +151,6 @@ router.post("/:clubId/remove/:studentId", async function(req,res,next) {
             transporter.sendMail(mailOptions, (error, info) => { if(error) return emailNotSent(res); });
         }
         await removeStudent(mailOptions);
-
-    res.redirect(`/club/${req.params.clubId}`);
 
 });
 
