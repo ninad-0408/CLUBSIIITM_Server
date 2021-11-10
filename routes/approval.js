@@ -2,37 +2,15 @@ import express from "express";
 import mongoose from "mongoose";
 import approvalModel from "../models/approvals.js";
 import { approveApproval, declineApproval } from "../controllers/approvals.js";
-import { notValid, notAuthorized, notFound, emailNotSent, dataUnaccesable, notLoggedIn } from "../alerts/errors.js";
+import { notValid, notAuthorized, notFound, dataUnaccesable, notLoggedIn } from "../alerts/errors.js";
 import dotenv from "dotenv";
 dotenv.config();
 
 const router = express.Router();
 
-router.post("/:approvalId/approve", async function (req, res, next) {
+router.post("/:approvalId/approve", approveApproval);
 
-    const approve = await approveApproval(req, res);
-        var mailOptions =
-        {
-            from: process.env.EMAIL,
-            to: approve.studentid.email,
-            subject: `WELCOME to ${approve.clubid.name} Club`,
-            text: `Congratulations ${approve.studentid.name}, your approval for joining the ${approve.clubid.name} Club is approved.`
-        };
-
-});
-
-router.post("/:approvalId/decline", async function (req, res, next) {
-
-    const decline = await declineApproval(req, res);
-
-        var mailOptions = {
-            from: process.env.EMAIL,
-            to: decline.studentid.email,
-            subject: `Approval Declined`,
-            text: `Sorry ${decline.studentid.name}, you approval for joining the ${decline.clubid.name} Club was declined.`
-        };
-
-});
+router.post("/:approvalId/decline", declineApproval);
 
 router.post("/:approvalId/meet", async function (req, res, next) {
 
@@ -83,7 +61,12 @@ router.post("/:approvalId/meet", async function (req, res, next) {
         text: `Dear ${approval.studentid.name},\nThe president of ${approval.clubid.name} Club wants to interview you on ${body.date} at ${body.time}.\nThe meet link is ${meet}.`
     };
 
-    await scheduleMail(mailOptions);
+    const check = await sendMail(mailOptions);
+
+    if(!check)
+    return res.status(200).json({ message: 'The meeting is scheduled successfully details are mailed.' });
+    else
+    return check;
 
 });
 

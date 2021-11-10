@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import approvalModel from "../models/approvals.js";
 import clubModel from "../models/clubs.js";
 import { notValid, notAuthorized, notFound, dataUnaccesable, notLoggedIn } from "../alerts/errors.js";
+import sendMail from '../mails/mail.js';
 
 export const approveApproval = async (req,res) => {
 
@@ -33,9 +34,22 @@ export const approveApproval = async (req,res) => {
             approval = await approvalModel.findById(approvalId)
                                           .populate("studentid", [ "name", "email" ])
                                           .populate("clubid", "name");
-
+                                          
             await clubModel.findByIdAndUpdate(approval.clubid, { $push: { memberids: approval.studentid._id }});
-            return res.status(200).json({ approval });
+                                          
+            var mailOptions = {
+                from: process.env.EMAIL,
+                to: approval.studentid.email,
+                subject: `WELCOME to ${approval.clubid.name} Club`,
+                text: `Congratulations ${approval.studentid.name}, your approval for joining the ${approval.clubid.name} Club is approved.`
+            };
+                                                                      
+            const check = await sendMail(mailOptions);
+                            
+            if(!check)
+            return res.status(200).json({ approvalId });
+            else
+            return check.json({ approvalId });
         
         } catch (error) {
             return dataUnaccesable(res);
@@ -75,7 +89,20 @@ export const declineApproval = async (req,res) => {
             approval = await approvalModel.findById(approvalId)
                                           .populate("studentid", [ "name", "email" ])
                                           .populate("clubid", "name");
+
+            var mailOptions = {
+                from: process.env.EMAIL,
+                to: approval.studentid.email,
+                subject: `Approval Declined`,
+                text: `Sorry ${approval.studentid.name}, you approval for joining the ${approval.clubid.name} Club was declined.`
+            };
+                                          
+            const check = await sendMail(mailOptions);
+
+            if(!check)
             return res.status(200).json({ approvalId });
+            else
+            return check.json({ approvalId });
         
         } catch (error) {
             return dataUnaccesable(res);
@@ -111,7 +138,8 @@ export const postApproval = async (req,res) => {
 
     if(club.memberids.find((member) => member == req._passport.session.user))
     {
-        var err = new Error("You are already member of this club.");
+        var err = new Error();
+        err.message = "You are already member of this club.";
         err.status = 400;
         return res.status(err.status).json({ err });
     }
@@ -126,7 +154,8 @@ export const postApproval = async (req,res) => {
 
     if(checkapproval.length != 0)
     {
-        var err = new Error("You have already submitted the approval for this club.");
+        var err = new Error();
+        err.message = "You have already submitted the approval for this club.";
         err.status = 400;
         return res.status(err.status).json({ err });
     }
