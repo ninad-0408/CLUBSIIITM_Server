@@ -9,7 +9,6 @@ import studentModel from "./models/students.js";
 import dotenv from "dotenv";
 dotenv.config();
 
-
 import clubRoute from "./routes/club.js";
 import eventRoute from "./routes/event.js";
 import approvalRoute from "./routes/approval.js";
@@ -87,7 +86,6 @@ passport.use(new GoogleStrategy({
     studentModel.findOne({
       googleId: profile.id
     }, function (err, student) {
-      // console.log(profile.emails[0].value.substring(11, 23));
       if (!student && profile.emails[0].value.substring(11, 23)=="@iiitm.ac.in") {
         var branch=profile.emails[0].value.substring(0, 3).toUpperCase() ;
         var rollno=profile.emails[0].value.substring(4, 8)+branch+profile.emails[0].value.substring(8, 11);

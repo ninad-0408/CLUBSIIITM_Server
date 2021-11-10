@@ -102,7 +102,7 @@ export const postEvent = async (req,res) => {
 
 };
 
-export const putEvent = async (req,res) => {
+export const patchEvent = async (req,res) => {
 
     if(req.session.passport === undefined)
     return notLoggedIn(res);

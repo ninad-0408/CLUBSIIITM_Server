@@ -1,10 +1,12 @@
 import express from "express";
 import imageUpload from "../middleware/imageUpload.js";
-import { getClub, patchClub, removeMember } from "../controllers/clubs.js";
+import { getClub, getClubs, patchClub, removeMember } from "../controllers/clubs.js";
 import { postEvent } from "../controllers/events.js";
 import { postApproval } from "../controllers/approvals.js";
 
 const router = express.Router();
+
+router.get('/', getClubs);
 
 router.get("/:clubId", getClub);
 
