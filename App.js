@@ -5,13 +5,11 @@ import session from "express-session";
 import passport from "passport";
 import Googlepassport from "passport-google-oauth20";
 import studentModel from "./models/students.js";
-import connectflash from "connect-flash";
 
 import dotenv from "dotenv";
 dotenv.config();
 
 
-import homeRoute from "./routes/home.js";
 import clubRoute from "./routes/club.js";
 import eventRoute from "./routes/event.js";
 import approvalRoute from "./routes/approval.js";
@@ -33,13 +31,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(connectflash());
-app.use("/home", homeRoute);
 app.use("/club", clubRoute);
 app.use("/event", eventRoute);
 app.use("/approval",approvalRoute);
 app.use("/student", studentRoute);
-app.use("/", homeRoute);
 
 const PORT = process.env.PORT || 5000;
 

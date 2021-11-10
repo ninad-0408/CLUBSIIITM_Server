@@ -1,54 +1,12 @@
 import express from "express";
 import mongoose from "mongoose";
-import nodemailer from "nodemailer";
-import { google } from "googleapis";
 import approvalModel from "../models/approvals.js";
 import { approveApproval, declineApproval } from "../controllers/approvals.js";
 import { notValid, notAuthorized, notFound, emailNotSent, dataUnaccesable, notLoggedIn } from "../alerts/errors.js";
 import dotenv from "dotenv";
 dotenv.config();
 
-const OAuth2 = google.auth.OAuth2;
-
 const router = express.Router();
-
-const createTransporter = async () => {
-    const oauth2Client = new OAuth2(
-        process.env.CLIENT_ID2,
-        process.env.CLIENT_SECRET2,
-        "https://developers.google.com/oauthplayground"
-    );
-
-    oauth2Client.setCredentials({
-        refresh_token: process.env.REFRESH_TOKEN2
-    });
-
-    const accessToken = await new Promise((resolve, reject) => {
-        oauth2Client.getAccessToken((err, token) => {
-          if (err) {
-            console.log('Failed to create access token :(');
-            reject("Failed to create access token :(");
-          }
-          resolve(token);
-        });
-      });
-
-
-    const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-            type: "OAuth2",
-            user: process.env.EMAIL,
-            accessToken: accessToken,
-            clientId: process.env.CLIENT_ID2,
-            clientSecret: process.env.CLIENT_SECRET2,
-            refreshToken: process.env.REFRESH_TOKEN2
-        }
-    });
-
-    return transporter;
-};
-
 
 router.get("/:approvalId/approve", async function (req, res, next) {
 

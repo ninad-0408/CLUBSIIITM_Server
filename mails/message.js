@@ -10,4 +10,4 @@ var mailOptions =
             text: `Congratulations boss, your approval for joining the CLUB Club is approved.`
         };
 
-        mailing(mailOptions);
+mailing(mailOptions);
