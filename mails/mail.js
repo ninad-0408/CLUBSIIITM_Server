@@ -1,9 +1,10 @@
 import nodemailer from "nodemailer";
 import { google } from "googleapis";
+const OAuth2 = google.auth.OAuth2;
 import dotenv from "dotenv";
 dotenv.config();
 
-const OAuth2 = google.auth.OAuth2;
+import { emailNotSent } from "../alerts/errors";
 
 const createTransporter = async () => {
     const oauth2Client = new OAuth2(
@@ -42,10 +43,10 @@ const createTransporter = async () => {
     return transporter;
 };
 
-export const mailing = async (mailOptions) => {
-    let mail = async (mailOptions) => {
-        let transporter = await createTransporter();
-        transporter.sendMail(mailOptions, (error, info) => { if (error) return emailNotSent(res); });
-    }
-    await mail(mailOptions);
+export const sendMail = (mailOptions) => {
+    let transporter = await createTransporter();
+    transporter.sendMail(mailOptions, (error, info) => { 
+        if(error)
+        return emailNotSent(res);
+    });
 };

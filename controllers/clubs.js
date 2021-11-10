@@ -26,6 +26,7 @@ export const getClub = async (req, res) => {
                                         .populate("memberids", "name")
                                         .populate("presidentid", "name")
                                         .populate("eventids", ["name", "image"]);
+                                        // add approvals according to auth.
             return res.status(200).json({ club });
 
         } catch (error) {
@@ -49,7 +50,7 @@ export const getClubs = async (req, res) => {
 
 };
 
-export const putClub = async (req, res) => {
+export const patchClub = async (req, res) => {
 
     if(req.session.passport === undefined)
     return notLoggedIn(res);
@@ -91,6 +92,7 @@ export const putClub = async (req, res) => {
 
             await clubModel.updateOne({ _id: clubId }, body);
             club = await clubModel.findById(clubId);
+            // add populate and add approvals
             return res.status(200).json({ club });
 
         } catch (error) {
@@ -147,8 +149,9 @@ export const removeMember = async (req,res) => {
         }
 
         try {
-            await clubModel.updateOne({ _id: clubId }, { $pull: { memberids: studentId }});
-            return res.status(200).json({ studentId, clubId });
+            club = await clubModel.updateOne({ _id: clubId }, { $pull: { memberids: studentId }});
+            // add populate and add approvals
+            return res.status(200).json({ club });
 
         } catch (error) {
             return dataUnaccesable(res);

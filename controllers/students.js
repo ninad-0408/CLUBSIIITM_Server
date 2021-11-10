@@ -27,7 +27,7 @@ export const getStudent = async (req, res) => {
     return res.status(200).json({ student })
 };
 
-export const putStudent = async (req, res) => {
+export const patchStudent = async (req, res) => {
 
     if(req.session.passport === undefined)
     return notLoggedIn(res);

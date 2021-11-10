@@ -5,13 +5,10 @@ import session from "express-session";
 import passport from "passport";
 import Googlepassport from "passport-google-oauth20";
 import studentModel from "./models/students.js";
-import connectflash from "connect-flash";
 
 import dotenv from "dotenv";
 dotenv.config();
 
-
-import homeRoute from "./routes/home.js";
 import clubRoute from "./routes/club.js";
 import eventRoute from "./routes/event.js";
 import approvalRoute from "./routes/approval.js";
@@ -33,13 +30,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(connectflash());
-app.use("/home", homeRoute);
 app.use("/club", clubRoute);
 app.use("/event", eventRoute);
 app.use("/approval",approvalRoute);
 app.use("/student", studentRoute);
-app.use("/", homeRoute);
 
 const PORT = process.env.PORT || 5000;
 
@@ -92,7 +86,6 @@ passport.use(new GoogleStrategy({
     studentModel.findOne({
       googleId: profile.id
     }, function (err, student) {
-      // console.log(profile.emails[0].value.substring(11, 23));
       if (!student && profile.emails[0].value.substring(11, 23)=="@iiitm.ac.in") {
         var branch=profile.emails[0].value.substring(0, 3).toUpperCase() ;
         var rollno=profile.emails[0].value.substring(4, 8)+branch+profile.emails[0].value.substring(8, 11);
