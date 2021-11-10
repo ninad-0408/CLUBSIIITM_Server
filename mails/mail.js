@@ -4,7 +4,7 @@ const OAuth2 = google.auth.OAuth2;
 import dotenv from "dotenv";
 dotenv.config();
 
-import { emailNotSent } from "../alerts/errors";
+import { emailNotSent } from "../alerts/errors.js";
 
 const createTransporter = async () => {
     const oauth2Client = new OAuth2(
@@ -43,10 +43,12 @@ const createTransporter = async () => {
     return transporter;
 };
 
-export const sendMail = (mailOptions) => {
-    let transporter = await createTransporter();
+const sendMail = (mailOptions) => {
+    let transporter = createTransporter();
     transporter.sendMail(mailOptions, (error, info) => { 
         if(error)
         return emailNotSent(res);
     });
 };
+
+export default sendMail;

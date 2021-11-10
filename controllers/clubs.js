@@ -143,7 +143,8 @@ export const removeMember = async (req,res) => {
 
         if(club.memberids.indexOf(student._id) === -1)
         {
-            var err = new Error("The Student is not member of this club.")
+            var err = new Error()
+            err.message = "The Student is not member of this club.";
             err.status = 403;
             return res.status(err.status).json({ err });
         }
