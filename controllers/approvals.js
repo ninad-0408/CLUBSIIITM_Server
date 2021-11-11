@@ -1,18 +1,11 @@
-import mongoose from "mongoose";
 import approvalModel from "../models/approvals.js";
 import clubModel from "../models/clubs.js";
-import { notValid, notAuthorized, notFound, dataUnaccesable, notLoggedIn } from "../alerts/errors.js";
+import { notAuthorized, notFound, dataUnaccesable } from "../alerts/errors.js";
 import sendMail from '../mails/mail.js';
 
 export const approveApproval = async (req,res) => {
 
-    if(req.session.passport === undefined)
-    return notLoggedIn(res);
-
     const { approvalId } = req.params;
-
-    if(!mongoose.Types.ObjectId.isValid(approvalId))
-    return notValid(res);
 
     var approval;
 
@@ -61,13 +54,7 @@ export const approveApproval = async (req,res) => {
 
 export const declineApproval = async (req,res) => {
 
-    if(req.session.passport === undefined)
-    return notLoggedIn(res);
-
     const { approvalId } = req.params;
-
-    if(!mongoose.Types.ObjectId.isValid(approvalId))
-    return notValid(res);
 
     var approval;
 
@@ -115,13 +102,7 @@ export const declineApproval = async (req,res) => {
 
 export const postApproval = async (req,res) => {
 
-    if(req.session.passport === undefined)
-    return notLoggedIn(res);
-
     const { clubId } = req.params;
-    
-    if(!mongoose.Types.ObjectId.isValid(clubId))
-    return notValid(res);
 
     var club;
 
@@ -170,40 +151,4 @@ export const postApproval = async (req,res) => {
         return dataUnaccesable(res);           
     }
     
-};
-
-export const getClubApprovals = async (req,res) => {
-
-    if(req.session.passport === undefined)
-    return [];
-
-    const { clubId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(clubId))
-    return notValid(res);
-    
-    var club;
-
-    try {
-        club = await clubModel.findOne({ _id: clubId }, "presidentid");
-    } catch (error) {
-        return dataUnaccesable(res);
-    }
-    
-    if(club != null)
-    {
-        if(req.session.passport.user != club.presidentid )
-        return [];
-
-        try {
-            const clubapprovals = await approvalModel.find({ clubid: clubId, approved: false, declined: false }, "studentid")
-                                                     .populate("studentid", "name");
-            return res.status(200).json({ clubapprovals, clubId });
-        
-        } catch (error) {
-            return dataUnaccesable(res);
-        }
-    }
-    else  
-    return notFound(res,"Club");
 };

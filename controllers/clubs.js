@@ -1,14 +1,11 @@
 import mongoose from "mongoose";
 import clubModel from "../models/clubs.js";
 import studentModel from "../models/students.js";
-import { notValid, notAuthorized, notFound, dataUnaccesable, notLoggedIn } from "../alerts/errors.js";
+import { notAuthorized, notFound, dataUnaccesable } from "../alerts/errors.js";
 
 export const getClub = async (req, res) => {
 
     const { clubId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(clubId))
-    return notValid(res);
 
     var club0;
 
@@ -52,13 +49,7 @@ export const getClubs = async (req, res) => {
 
 export const patchClub = async (req, res) => {
 
-    if(req.session.passport === undefined)
-    return notLoggedIn(res);
-
     const { clubId } = req.params;
-
-    if(!mongoose.Types.ObjectId.isValid(clubId))
-    return notValid(res);
 
     var body = req.body;
     var club;
@@ -105,16 +96,7 @@ export const patchClub = async (req, res) => {
 
 export const removeMember = async (req,res) => {
 
-    if(req.session.passport === undefined)
-    return notLoggedIn(res);
-
     const { clubId, studentId } = req.params;
-
-    if(!mongoose.Types.ObjectId.isValid(clubId))
-    return notValid(res);
-
-    if(!mongoose.Types.ObjectId.isValid(studentId))
-    return notValid(res);
 
     var student;
 
@@ -160,4 +142,19 @@ export const removeMember = async (req,res) => {
     }
     else   
     return notFound(res,"Club");
+};
+
+export const getEventsofClub = async (req,res) => {
+
+    const { clubId } = req.params;
+
+    try {
+        const club = await clubModel.findById(clubId, 'eventids')
+                                    .populate('eventids', ['name', 'image']);
+
+        return res.status(200).json({ events: club.eventids });
+    } catch (error) {
+        return dataUnaccesable(res);
+    }    
+
 };

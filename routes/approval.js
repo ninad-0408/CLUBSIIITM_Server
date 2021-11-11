@@ -1,26 +1,20 @@
 import express from "express";
-import mongoose from "mongoose";
 import approvalModel from "../models/approvals.js";
 import { approveApproval, declineApproval } from "../controllers/approvals.js";
-import { notValid, notAuthorized, notFound, dataUnaccesable, notLoggedIn } from "../alerts/errors.js";
+import { notAuthorized, notFound, dataUnaccesable } from "../alerts/errors.js";
+import { checkApproval, isLoggedIn } from "../middleware/validityCheck.js";
 import dotenv from "dotenv";
 dotenv.config();
 
 const router = express.Router();
 
-router.post("/:approvalId/approve", approveApproval);
+router.post("/:approvalId/approve", checkApproval, isLoggedIn, approveApproval);
 
-router.post("/:approvalId/decline", declineApproval);
+router.post("/:approvalId/decline", checkApproval, isLoggedIn, declineApproval);
 
-router.post("/:approvalId/meet", async function (req, res, next) {
-
-    if (req.session.passport === undefined)
-    return notLoggedIn(res);
+router.post("/:approvalId/meet", checkApproval, isLoggedIn, async function (req, res) {
 
     const { approvalId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(approvalId))
-    return notValid(res);
 
     const body = req.body;
 
