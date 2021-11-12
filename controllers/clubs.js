@@ -23,7 +23,7 @@ export const getClub = async (req, res) => {
                                         .populate("memberids", "name")
                                         .populate("presidentid", "name")
                                         .populate("eventids", ["name", "image"]);
-                                        // add approvals according to auth.
+        
             return res.status(200).json({ club });
 
         } catch (error) {
@@ -82,8 +82,11 @@ export const patchClub = async (req, res) => {
             }
 
             await clubModel.updateOne({ _id: clubId }, body);
-            club = await clubModel.findById(clubId);
-            // add populate and add approvals
+            club = await clubModel.findById(clubId)
+                                  .populate("memberids", "name")
+                                  .populate("presidentid", "name")
+                                  .populate("eventids", ["name", "image"]);
+
             return res.status(200).json({ club });
 
         } catch (error) {
@@ -133,8 +136,7 @@ export const removeMember = async (req,res) => {
 
         try {
             club = await clubModel.updateOne({ _id: clubId }, { $pull: { memberids: studentId }});
-            // add populate and add approvals
-            return res.status(200).json({ club });
+            return res.status(200).json({ clubId, studentId });
 
         } catch (error) {
             return dataUnaccesable(res);

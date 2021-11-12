@@ -37,7 +37,7 @@ export const approveApproval = async (req,res) => {
                 text: `Congratulations ${approval.studentid.name}, your approval for joining the ${approval.clubid.name} Club is approved.`
             };
                                                                       
-            const check = await sendMail(mailOptions);
+            const check = await sendMessage(mailOptions);
                             
             if(!check)
             return res.status(200).json({ approvalId });
@@ -84,7 +84,7 @@ export const declineApproval = async (req,res) => {
                 text: `Sorry ${approval.studentid.name}, you approval for joining the ${approval.clubid.name} Club was declined.`
             };
                                           
-            const check = await sendMail(mailOptions);
+            const check = await sendMessage(mailOptions);
 
             if(!check)
             return res.status(200).json({ approvalId });
@@ -151,4 +151,35 @@ export const postApproval = async (req,res) => {
         return dataUnaccesable(res);           
     }
     
+};
+
+export const getClubApprovals = async (req,res) => {
+    
+    const { clubId } = req.params;
+
+    var club;
+
+    try {
+        club = await clubModel.findOne({ _id: clubId });
+
+    } catch (error) {
+        return dataUnaccesable(res);
+
+    }
+
+    if(club == null)
+    return notFound(res,"Club");
+
+    try {
+        if(req.session.passport.user != club.presidentid )
+        return notAuthorized(res);
+
+        const approvals = await approvalModel.find({ clubid: clubId });
+
+        return res.status(200).json({ approvals });
+
+    } catch (error) {
+        return dataUnaccesable(res);
+    }
+
 };
