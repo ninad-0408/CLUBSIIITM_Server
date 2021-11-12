@@ -43,12 +43,12 @@ const createTransporter = async () => {
     return transporter;
 };
 
-const sendMail = (mailOptions) => {
-    let transporter = createTransporter();
+const sendMessage = async (mailOptions) => {
+    let transporter = await createTransporter();
     transporter.sendMail(mailOptions, (error, info) => { 
         if(error)
         return emailNotSent(res);
     });
 };
 
-export default sendMail;
+export default sendMessage;

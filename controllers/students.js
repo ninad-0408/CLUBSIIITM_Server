@@ -1,17 +1,11 @@
 import studentModel from '../models/students.js';
-import mongoose from "mongoose";
 import clubModel from '../models/clubs.js';
-import { notValid, notAuthorized, notFound, dataUnaccesable, notLoggedIn } from "../alerts/errors.js";
+import { notAuthorized, notFound, dataUnaccesable } from "../alerts/errors.js";
+import approvalModel from '../models/approvals.js';
 
 export const getStudent = async (req, res) => {
 
-    if(req.session.passport === undefined)
-    return notLoggedIn(res);
-
     const { studentId } = req.params;
-
-    if(!mongoose.Types.ObjectId.isValid(studentId))
-    return notValid(res);
 
     var student;
 
@@ -29,14 +23,8 @@ export const getStudent = async (req, res) => {
 
 export const patchStudent = async (req, res) => {
 
-    if(req.session.passport === undefined)
-    return notLoggedIn(res);
-
     const { studentId } = req.params;
     const body = req.body;
-
-    if(!mongoose.Types.ObjectId.isValid(studentId))
-    return notValid(res);
 
     var student;
 
@@ -63,13 +51,7 @@ export const patchStudent = async (req, res) => {
 
 export const delStudent = async (req, res) => {
 
-    if(req.session.passport === undefined)
-    return notLoggedIn(res);
-
     const { studentId } = req.params;
-
-    if(!mongoose.Types.ObjectId.isValid(studentId))
-    return notValid(res);
 
     var student;
 
@@ -87,7 +69,8 @@ export const delStudent = async (req, res) => {
 
     try {
         await clubModel.updateMany({ memberids: { $elemMatch: { $eq: student._id } } }, { $pull: { memberids: student._id } });
-        await studentModel.findByIdAndDelete(studentId); 
+        await approvalModel.deleteMany({ studentid: studentId });
+        await studentModel.findByIdAndDelete(studentId);
     } catch (error) {
         return dataUnaccesable(res);          
     }

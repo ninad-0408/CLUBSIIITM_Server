@@ -1,21 +1,26 @@
 import express from "express";
 import imageUpload from "../middleware/imageUpload.js";
-import { getClub, getClubs, patchClub, removeMember } from "../controllers/clubs.js";
+import { getClub, getClubs, patchClub, removeMember, getEventsofClub } from "../controllers/clubs.js";
 import { postEvent } from "../controllers/events.js";
-import { postApproval } from "../controllers/approvals.js";
+import { postApproval, getClubApprovals } from "../controllers/approvals.js";
+import { checkClub, checkStudent, isLoggedIn } from "../middleware/validityCheck.js";
 
 const router = express.Router();
 
 router.get('/', getClubs);
 
-router.get("/:clubId", getClub);
+router.get("/:clubId", checkClub, getClub);
 
-router.patch("/:clubId", imageUpload.single("image"), patchClub);
+router.get('/:clubId/events', checkClub, getEventsofClub);
 
-router.post("/:clubId/event", imageUpload.single("image"), postEvent);
+router.get('/:clubId/approvals', checkClub, isLoggedIn, getClubApprovals);
 
-router.post("/:clubId/approval", postApproval);
+router.patch("/:clubId", checkClub, isLoggedIn, imageUpload.single("image"), patchClub);
 
-router.post("/:clubId/remove/:studentId", removeMember);
+router.post("/:clubId/event", checkClub, isLoggedIn, imageUpload.single("image"), postEvent);
+
+router.post("/:clubId/approval", checkClub, isLoggedIn, postApproval);
+
+router.post("/:clubId/remove/:studentId", checkClub, isLoggedIn, checkStudent, removeMember);
 
 export default router;
