@@ -1,5 +1,4 @@
 import express from "express";
-import session from "express-session";
 import passport from "passport";
 import Googlepassport from "passport-google-oauth20";
 import studentModel from "../models/students.js";
@@ -8,15 +7,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const router = express.Router();
-
-router.use(session({
-    secret: process.env.secret,
-    resave: false,
-    saveUninitialized: false,
-}));
-
-router.use(passport.initialize());
-router.use(passport.session());
 
 const GoogleStrategy = Googlepassport.Strategy;
 passport.serializeUser(function (studentModel, done) {
@@ -28,7 +18,6 @@ passport.deserializeUser(function (id, done) {
         done(err, studentModel);
     });
 });
-
 
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
@@ -70,6 +59,7 @@ router.get("/google",
 router.get("/google/club",
     passport.authenticate('google', { failureRedirect: '/home' }),
     function (req, res) {
+        console.log(req.user);
         res.status(200).json({ message: 'You are logged in successfully.' });
     });
 
