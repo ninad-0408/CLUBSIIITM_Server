@@ -1,17 +1,11 @@
 import mongoose from "mongoose";
 import clubModel from "../models/clubs.js";
 import eventModel from "../models/events.js";
-import { notValid, notAuthorized, notFound, dataUnaccesable, notLoggedIn } from "../alerts/errors.js";
+import { notAuthorized, notFound, dataUnaccesable } from "../alerts/errors.js";
 
 export const getEvent = async (req,res) => {
 
-    if(req.session.passport === undefined)
-    return notLoggedIn(res);
-
     const { eventId } = req.params;
-
-    if(!mongoose.Types.ObjectId.isValid(eventId))
-    return notValid(res);
 
     var eventt;
     
@@ -55,13 +49,7 @@ export const getUpcomingEvents = async (req,res) => {
 
 export const postEvent = async (req,res) => {
 
-    if(req.session.passport === undefined)
-    return notLoggedIn(res);
-
     const { clubId } = req.params;
-    
-    if(!mongoose.Types.ObjectId.isValid(clubId))
-    return notValid(res);
 
     var club;
 
@@ -104,14 +92,8 @@ export const postEvent = async (req,res) => {
 
 export const patchEvent = async (req,res) => {
 
-    if(req.session.passport === undefined)
-    return notLoggedIn(res);
-    
     const { eventId } = req.params;
     var body = req.body;
-
-    if(!mongoose.Types.ObjectId.isValid(eventId))
-    return notValid(res);
 
     var event;
     
@@ -158,13 +140,7 @@ export const patchEvent = async (req,res) => {
 
 export const delEvent = async (req,res) => {
 
-    if(req.session.passport === undefined)
-    return notLoggedIn(res);
-
     const { eventId } = req.params;
-
-    if(!mongoose.Types.ObjectId.isValid(eventId))
-    return notValid(res);
 
     var event;
 
