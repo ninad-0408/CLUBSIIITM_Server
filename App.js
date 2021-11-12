@@ -1,10 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import session from "express-session";
-import passport from "passport";
-import Googlepassport from "passport-google-oauth20";
-import studentModel from "./models/students.js";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -13,27 +9,20 @@ import clubRoute from "./routes/club.js";
 import eventRoute from "./routes/event.js";
 import approvalRoute from "./routes/approval.js";
 import studentRoute from "./routes/student.js";
+import authRoute from "./routes/auth.js";
 
-const GoogleStrategy = Googlepassport.Strategy;
+
 const app = express();
 
 app.use(cors());
 app.use(express.json({ limit: "30mb", extended: true }))
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
 
-app.use(session({
-	secret: process.env.secret,
-	resave: false,
-	saveUninitialized: false,
-}));
-
-app.use(passport.initialize());
-app.use(passport.session());
-
 app.use("/club", clubRoute);
 app.use("/event", eventRoute);
 app.use("/approval", approvalRoute);
 app.use("/student", studentRoute);
+app.use("/auth", authRoute);
 
 const PORT = process.env.PORT || 5000;
 
@@ -64,69 +53,3 @@ app.get("/image/:imageId", async (req, res) => {
 });
 
 
-passport.serializeUser(function (studentModel, done) {
-	done(null, studentModel.id);
-});
-
-passport.deserializeUser(function (id, done) {
-	studentModel.findById(id, function (err, studentModel) {
-		done(err, studentModel);
-	});
-});
-
-
-passport.use(new GoogleStrategy({
-	clientID: process.env.CLIENT_ID,
-	clientSecret: process.env.CLIENT_SECRET,
-	callbackURL: process.env.CALLBACK_URL,
-	userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
-},
-	function (accessToken, refreshToken, profile, cb) {
-
-		studentModel.findOne({
-			googleId: profile.id
-		}, function (err, student) {
-			if (!student && profile.emails[0].value.substring(11, 23) == "@iiitm.ac.in") {
-				var branch = profile.emails[0].value.substring(0, 3).toUpperCase();
-				var rollno = profile.emails[0].value.substring(4, 8) + branch + profile.emails[0].value.substring(8, 11);
-				var batch = profile.emails[0].value.substring(4, 8);
-				var student = new studentModel({
-					name: profile.displayName,
-					email: profile.emails[0].value,
-					googleId: profile.id,
-					branch: branch,
-					rollNo: rollno,
-					batch: batch
-				});
-				student.save(function (err, studentModel) {
-					if (err) return err;
-				});
-			}
-			return cb(err, student);
-		});
-	}
-));
-
-app.get("/auth/google",
-	passport.authenticate('google', {
-		scope: ["profile", "email"]
-	}));
-
-app.get("/auth/google/club",
-	passport.authenticate('google', { failureRedirect: '/home' }),
-	function (req, res) {
-		res.status(200).json({ message: 'You are logged in successfully.' });
-	});
-
-app.get('/logout', function (req, res) {
-	req.session.destroy(function (err) {
-		if (!err)
-			res.status(200).json({ message: 'You have logged out successfully.' });
-		else 
-		{
-			err.message = 'Unable to logout right now try again later.';
-			err.status = 500;
-			res.status(err.status).json({ err });
-		}
-	})
-});
