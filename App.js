@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+import session from "express-session";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -10,13 +11,22 @@ import eventRoute from "./routes/event.js";
 import approvalRoute from "./routes/approval.js";
 import studentRoute from "./routes/student.js";
 import authRoute from "./routes/auth.js";
-
+import passport from "passport";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json({ limit: "30mb", extended: true }))
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
+
+app.use(session({
+	secret: process.env.secret,
+	resave: false,
+	saveUninitialized: false,
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use("/club", clubRoute);
 app.use("/event", eventRoute);
