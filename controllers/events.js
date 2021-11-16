@@ -76,7 +76,7 @@ export const postEvent = async (req,res) => {
             
             try {
                 await clubModel.findOneAndUpdate({ _id: clubId }, { $push: { eventids: newevent._id } });
-                return res.status(200).json({ newEvent: newevent, message: "Event created successfully.", clubId });
+                return res.status(200).json({ newEvent: newevent, message: "Event created successfully." });
             } catch (error) {
                 return dataUnaccesable(res);          
             }
@@ -128,7 +128,7 @@ export const patchEvent = async (req,res) => {
             
             await eventModel.updateOne({ _id: eventId }, body);
             event = await eventModel.findById(eventId);
-            return res.status(200).json({ event, clubId: club._id, message: "Event updated successfully." })
+            return res.status(200).json({ event, message: "Event updated successfully." })
         
         } catch (error) {
             return dataUnaccesable(res); 
@@ -170,7 +170,7 @@ export const delEvent = async (req,res) => {
 
             await clubModel.findByIdAndUpdate(club._id,{ $pull: { eventids: event._id } });
             await eventModel.deleteOne({ _id: eventId });
-            return res.status(200).json({ eventId, clubId: club._id, message: "Event deleted successfully." })
+            return res.status(200).json({ eventId, message: "Event deleted successfully." })
         
         } catch (error) {
             return dataUnaccesable(res);
