@@ -39,7 +39,7 @@ export const getUpcomingEvents = async (req,res) => {
                                        .limit(3)
                                        .select("name");
         
-        return res.status(200).json({ upcomingEvents });
+        return res.status(200).json({ events });
         
     } catch (error) {
         return dataUnaccesable(res);
