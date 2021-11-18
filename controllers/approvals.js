@@ -1,7 +1,6 @@
 import approvalModel from "../models/approvals.js";
 import clubModel from "../models/clubs.js";
 import { notAuthorized, notFound, dataUnaccesable } from "../alerts/errors.js";
-import sendMail from '../mails/mail.js';
 
 export const approveApproval = async (req,res) => {
 

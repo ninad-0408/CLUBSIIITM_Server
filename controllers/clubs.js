@@ -146,17 +146,3 @@ export const removeMember = async (req,res) => {
     return notFound(res,"Club");
 };
 
-export const getEventsofClub = async (req,res) => {
-
-    const { clubId } = req.params;
-
-    try {
-        const club = await clubModel.findById(clubId, 'eventids')
-                                    .populate('eventids', ['name', 'image']);
-
-        return res.status(200).json({ events: club.eventids });
-    } catch (error) {
-        return dataUnaccesable(res);
-    }    
-
-};

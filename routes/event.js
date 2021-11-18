@@ -1,9 +1,11 @@
 import express from "express";
-import { getEvent, patchEvent, delEvent } from "../controllers/events.js";
+import { getEvent, patchEvent, delEvent, getUpcomingEvents } from "../controllers/events.js";
 import imageUpload from "../middleware/imageUpload.js";
 import { checkEvent, isLoggedIn } from "../middleware/validityCheck.js";
 
 const router = express.Router();
+
+router.get('/', getUpcomingEvents);
 
 router.get("/:eventId", checkEvent, isLoggedIn, getEvent);
 
