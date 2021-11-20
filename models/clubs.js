@@ -10,7 +10,10 @@ const clubSchema = mongoose.Schema({
         required: true
     },
     description: String,
-    achievements: [String],
+    achievements: {
+        type: [String],
+        default: []
+    },
     eventids: [{
         type: Schema.Types.ObjectId,
         ref: "eventModel"
