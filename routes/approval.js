@@ -45,7 +45,7 @@ router.post("/:approvalId/meet", checkApproval, isLoggedIn, async function (req,
     if (approval == null)
     return notFound(res,"Approval");
 
-    if (req.session.passport.user != approval.clubid.presidentid)
+    if (req.user._id != approval.clubid.presidentid)
     return notAuthorized(res);
 
     var mailOptions = {

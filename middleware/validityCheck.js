@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { notValid, notLoggedIn } from '../alerts/errors.js';
 
 export const isLoggedIn = (req, res, next) => {
-    if (req.session.passport === undefined)
+    if (req.user === undefined)
         return notLoggedIn(res);
     else
         next();
