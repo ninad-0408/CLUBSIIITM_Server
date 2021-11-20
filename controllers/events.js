@@ -65,7 +65,7 @@ export const postEvent = async (req,res) => {
 
     if(club != null)
     {
-        if(club.presidentid != req.session.passport.user)
+        if(club.presidentid != req.user._id)
         return notAuthorized(res);
 
         try {
@@ -108,7 +108,7 @@ export const patchEvent = async (req,res) => {
     {
         const club = await clubModel.findOne({ eventids: { $elemMatch: { $eq: event._id } } })
 
-        if(club.presidentid != req.session.passport.user)
+        if(club.presidentid != req.user._id)
         return notAuthorized(res);
 
         try {
@@ -155,7 +155,7 @@ export const delEvent = async (req,res) => {
     {
         const club = await clubModel.findOne({ eventids: { $elemMatch: { $eq: event._id } } })
 
-        if(club.presidentid != req.session.passport.user)
+        if(club.presidentid != req.user._id)
         return notAuthorized(res);
 
         try {

@@ -37,7 +37,7 @@ export const patchStudent = async (req, res) => {
     if(student === null)  
     return notFound(res,"Student");
 
-    if(req.session.passport.user != studentId)
+    if(req.user._id != studentId)
     return notAuthorized(res);
 
     try {
@@ -64,7 +64,7 @@ export const delStudent = async (req, res) => {
     if(student === null)  
     return notFound(res,"Student");
 
-    if(req.session.passport.user != studentId)
+    if(req.user._id != studentId)
     return notAuthorized(res);
 
     try {

@@ -3,10 +3,10 @@ import { dataUnaccesable, notAuthorized } from '../alerts/errors.js';
 
 export const getAuth = async (req, res) => {
 
-    const { profile } = req.body;
+    const profile = req.body;
 
     try {
-        var user = await studentModel.findById(profile._id);
+        var user = await studentModel.findOne({ googleId: profile.googleId });
 
         if(!user)
         {

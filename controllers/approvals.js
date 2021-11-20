@@ -18,7 +18,7 @@ export const approveApproval = async (req,res) => {
     
     if(approval != null)
     {
-        if(req.session.passport.user != approval.clubid.presidentid )
+        if(req.user._id != approval.clubid.presidentid )
         return notAuthorized(res);
 
         try {
@@ -67,7 +67,7 @@ export const declineApproval = async (req,res) => {
     
     if(approval != null)
     {
-        if(req.session.passport.user != approval.clubid.presidentid )
+        if(req.user._id != approval.clubid.presidentid )
         return notAuthorized(res);
 
         try {
@@ -116,7 +116,7 @@ export const postApproval = async (req,res) => {
     if(club == null)
     return notFound(res,"Club");
 
-    if(club.memberids.find((member) => member == req._passport.session.user))
+    if(club.memberids.find((member) => member === req.user._id))
     {
         var err = new Error();
         err.message = "You are already member of this club.";
@@ -127,7 +127,7 @@ export const postApproval = async (req,res) => {
     var checkapproval;
 
     try {
-        checkapproval = await approvalModel.find({ studentid: req._passport.session.user, clubid: clubId});
+        checkapproval = await approvalModel.find({ studentid: req.user._id, clubid: clubId});
     } catch (error) {
         return dataUnaccesable(res);        
     }
@@ -140,7 +140,7 @@ export const postApproval = async (req,res) => {
         return res.status(err.status).json({ err });
     }
 
-    const approval = { studentid: req._passport.session.user, clubid: clubId};
+    const approval = { studentid: req.user._id, clubid: clubId};
     const newapproval = new approvalModel(approval);
     try {
         await newapproval.save();
@@ -170,7 +170,7 @@ export const getClubApprovals = async (req,res) => {
     return notFound(res,"Club");
 
     try {
-        if(req.session.passport.user != club.presidentid )
+        if(req.user._id != club.presidentid )
         return notAuthorized(res);
 
         const approvals = await approvalModel.find({ clubid: clubId });
