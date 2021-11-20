@@ -18,8 +18,8 @@ export const getAuth = async (req, res) => {
             var batch=profile.email.value.substring(4, 8);
             user = await studentModel.create({ name: profile.name, googleId: profile.googleId, email: profile.email, branch, rollno, batch });
 
-            return res.status(200).json({ profile: user });
         }
+        return res.status(200).json({ profile: user });
         
     } catch (error) {
         return dataUnaccesable(res);
