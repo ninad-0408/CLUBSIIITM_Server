@@ -173,7 +173,8 @@ export const getClubApprovals = async (req,res) => {
         if(!req.user._id.equals(club.presidentid))
         return notAuthorized(res);
 
-        const approvals = await approvalModel.find({ clubid: clubId, approved: false, declined: false });
+        const approvals = await approvalModel.find({ clubid: clubId, approved: false, declined: false })
+                                             .populate('studentid', ['name']);
 
         return res.status(200).json({ approvals });
 
