@@ -63,7 +63,7 @@ export const patchClub = async (req, res) => {
 
     if (club != null) 
     {
-        if(req.user._id != club.presidentid )
+        if(!req.user._id.equals(club.presidentid))
         return notAuthorized(res);
 
         try {
@@ -123,7 +123,7 @@ export const removeMember = async (req,res) => {
 
     if (club != null) 
     {
-        if(req.user._id != club.presidentid )
+        if(!req.user._id.equals(club.presidentid))
         return notAuthorized(res);
 
         if(club.memberids.indexOf(student._id) === -1)

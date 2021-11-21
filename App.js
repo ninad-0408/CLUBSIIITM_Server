@@ -43,7 +43,6 @@ app.get("/image/:imageId", async (req, res) => {
 		const readStream = await gfs.openDownloadStream(new mongoose.Types.ObjectId(req.params.imageId));
 		readStream.pipe(res);
 	} catch (error) {
-		console.log(error)
 		res.send(' ');
 	}
 });

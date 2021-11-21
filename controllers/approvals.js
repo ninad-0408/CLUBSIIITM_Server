@@ -18,7 +18,7 @@ export const approveApproval = async (req,res) => {
     
     if(approval != null)
     {
-        if(req.user._id != approval.clubid.presidentid )
+        if(!req.user._id.equals(approval.clubid.presidentid))
         return notAuthorized(res);
 
         try {
@@ -67,7 +67,7 @@ export const declineApproval = async (req,res) => {
     
     if(approval != null)
     {
-        if(req.user._id != approval.clubid.presidentid )
+        if(!req.user._id.equals(approval.clubid.presidentid))
         return notAuthorized(res);
 
         try {
@@ -116,7 +116,7 @@ export const postApproval = async (req,res) => {
     if(club == null)
     return notFound(res,"Club");
 
-    if(club.memberids.find((member) => member === req.user._id))
+    if(club.memberids.find((member) => req.user._id.equals(member)))
     {
         var err = new Error();
         err.message = "You are already member of this club.";
@@ -170,10 +170,11 @@ export const getClubApprovals = async (req,res) => {
     return notFound(res,"Club");
 
     try {
-        if(req.user._id != club.presidentid )
+        if(!req.user._id.equals(club.presidentid))
         return notAuthorized(res);
 
-        const approvals = await approvalModel.find({ clubid: clubId });
+        const approvals = await approvalModel.find({ clubid: clubId, approved: false, declined: false })
+                                             .populate('studentid', ['name']);
 
         return res.status(200).json({ approvals });
 
