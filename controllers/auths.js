@@ -10,12 +10,12 @@ export const getAuth = async (req, res) => {
 
         if(!user)
         {
-            if(!profile.email.value.substring(11, 23)==="@iiitm.ac.in")
+            if(!profile.email.substring(11, 23)==="@iiitm.ac.in")
             return notAuthorized(res);
 
-            var branch=profile.email.value.substring(0, 3).toUpperCase();
-            var rollno=profile.email.value.substring(4, 8)+branch+profile.emails[0].value.substring(8, 11);
-            var batch=profile.email.value.substring(4, 8);
+            var branch=profile.email.substring(0, 3).toUpperCase();
+            var rollno=profile.email.substring(4, 8)+branch+profile.email.substring(8, 11);
+            var batch=profile.email.substring(4, 8);
             user = await studentModel.create({ name: profile.name, googleId: profile.googleId, email: profile.email, branch, rollno, batch });
 
         }
