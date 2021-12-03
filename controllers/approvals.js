@@ -1,6 +1,7 @@
 import approvalModel from "../models/approvals.js";
 import clubModel from "../models/clubs.js";
 import { notAuthorized, notFound, dataUnaccesable } from "../alerts/errors.js";
+import sendMessage from '../mails/mail.js';
 
 export const approveApproval = async (req,res) => {
 
@@ -36,12 +37,9 @@ export const approveApproval = async (req,res) => {
                 text: `Congratulations ${approval.studentid.name}, your approval for joining the ${approval.clubid.name} Club is approved.`
             };
                                                                       
-            const check = await sendMessage(mailOptions);
+            await sendMessage(mailOptions);
                             
-            if(!check)
             return res.status(200).json({ approvalId });
-            else
-            return check.json({ approvalId });
         
         } catch (error) {
             return dataUnaccesable(res);
@@ -83,12 +81,9 @@ export const declineApproval = async (req,res) => {
                 text: `Sorry ${approval.studentid.name}, you approval for joining the ${approval.clubid.name} Club was declined.`
             };
                                           
-            const check = await sendMessage(mailOptions);
+            await sendMessage(mailOptions);
 
-            if(!check)
             return res.status(200).json({ approvalId });
-            else
-            return check.json({ approvalId });
         
         } catch (error) {
             return dataUnaccesable(res);

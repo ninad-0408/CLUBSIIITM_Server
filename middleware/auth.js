@@ -4,8 +4,8 @@ import jwt from 'jsonwebtoken';
 const auth = async (req, res, next) => {
 
     try {
-        const token = req.headers.authorization.split(' ')[1];
-        const googleId = jwt.decode(token).sub;
+        const token = req.headers.authorization?.split(' ')[1];
+        const googleId = jwt.decode(token)?.sub;
 
         const user = await studentModel.findOne({ googleId: googleId });
 

@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import clubModel from "../models/clubs.js";
 import studentModel from "../models/students.js";
 import { notAuthorized, notFound, dataUnaccesable } from "../alerts/errors.js";
+import sendMessage from "../mails/mail.js";
 
 export const getClub = async (req, res) => {
 
@@ -135,7 +136,17 @@ export const removeMember = async (req,res) => {
         }
 
         try {
-            club = await clubModel.updateOne({ _id: clubId }, { $pull: { memberids: studentId }});
+            await clubModel.updateOne({ _id: clubId }, { $pull: { memberids: studentId }});
+
+            var mailOptions = {
+                from: process.env.EMAIL,
+                to: student.email,
+                subject: `You have been Fired`,
+                text: `Sorry ${student.name}, you have been fired from the ${club.name} Club.`
+            };
+                                          
+            await sendMessage(mailOptions);
+
             return res.status(200).json({ clubId, studentId });
 
         } catch (error) {
