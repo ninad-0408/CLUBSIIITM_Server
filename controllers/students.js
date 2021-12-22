@@ -41,7 +41,7 @@ export const patchStudent = async (req, res) => {
     return notAuthorized(res);
 
     try {
-        await studentModel.findByIdAndUpdate(studentId, { bio: body.bio, linkedin: body.linkedin, phoneno: body.phoneno});        
+        student = await studentModel.findByIdAndUpdate(studentId, { bio: body.bio, linkedin: body.linkedin, phoneno: body.phoneno});        
     } catch (error) {
         return dataUnaccesable(res);          
     }
