@@ -39,7 +39,7 @@ export const approveApproval = async (req,res) => {
                                                                       
             await sendMessage(mailOptions);
                             
-            return res.status(200).json({ approvalId });
+            return res.status(200).json({ approvalId, message: "Approval approved successfully." });
         
         } catch (error) {
             return dataUnaccesable(res);
@@ -83,7 +83,7 @@ export const declineApproval = async (req,res) => {
                                           
             await sendMessage(mailOptions);
 
-            return res.status(200).json({ approvalId });
+            return res.status(200).json({ approvalId, message: "Approval declined successfully." });
         
         } catch (error) {
             return dataUnaccesable(res);
