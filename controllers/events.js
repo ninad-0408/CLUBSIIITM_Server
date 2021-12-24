@@ -60,6 +60,7 @@ export const postEvent = async (req,res) => {
     }
 
     req.body.date = new Date(req.body.date + " " + req.body.time);
+    req.body.image = '';
 
     const newevent = new eventModel(req.body);
 

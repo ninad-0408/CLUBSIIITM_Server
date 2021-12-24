@@ -88,7 +88,7 @@ export const patchClub = async (req, res) => {
                                   .populate("presidentid", "name")
                                   .populate("eventids", ["name", "image"]);
 
-            return res.status(200).json({ club });
+            return res.status(200).json({ club, message: "Club Information is updated successfully." });
 
         } catch (error) {
             return dataUnaccesable(res);
@@ -147,7 +147,7 @@ export const removeMember = async (req,res) => {
                                           
             await sendMessage(mailOptions);
 
-            return res.status(200).json({ clubId, studentId });
+            return res.status(200).json({ clubId, studentId, message: 'Member removed successfully.' });
 
         } catch (error) {
             return dataUnaccesable(res);
