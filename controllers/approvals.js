@@ -116,7 +116,7 @@ export const postApproval = async (req,res) => {
         var err = new Error();
         err.message = "You are already member of this club.";
         err.status = 400;
-        return res.status(err.status).json({ err });
+        return res.status(200).json({ err });
     }
 
     var checkapproval;
@@ -132,7 +132,7 @@ export const postApproval = async (req,res) => {
         var err = new Error();
         err.message = "You have already submitted the approval for this club.";
         err.status = 400;
-        return res.status(err.status).json({ err });
+        return res.status(200).json({ err });
     }
 
     const approval = { studentid: req.user._id, clubid: clubId};
