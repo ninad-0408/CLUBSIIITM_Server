@@ -113,7 +113,7 @@ export const patchEvent = async (req,res) => {
         return notAuthorized(res);
 
         try {
-            if(!(req.file === undefined))
+            if(mongoose.Types.ObjectId.isValid(event.image))
             {
                 if(!(event.image === undefined))
                 {
@@ -127,8 +127,7 @@ export const patchEvent = async (req,res) => {
                 body.image = req.file.id;
             }
             
-            await eventModel.updateOne({ _id: eventId }, body);
-            event = await eventModel.findById(eventId);
+            event = await eventModel.updateOne({ _id: eventId }, body, { new: true });            
             return res.status(200).json({ event, message: "Event updated successfully." })
         
         } catch (error) {
@@ -160,7 +159,7 @@ export const delEvent = async (req,res) => {
         return notAuthorized(res);
 
         try {
-            if(event.image != undefined)
+            if(mongoose.Types.ObjectId.isValid(event.image))
             {
                 var gfs;
                 const conn = mongoose.connection;
@@ -174,6 +173,7 @@ export const delEvent = async (req,res) => {
             return res.status(200).json({ eventId, message: "Event deleted successfully." })
         
         } catch (error) {
+            console.log(error);
             return dataUnaccesable(res);
         }
     }
