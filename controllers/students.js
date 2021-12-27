@@ -64,7 +64,7 @@ export const delStudent = async (req, res) => {
     if(student === null)  
     return notFound(res,"Student");
 
-    if(!req.user._id.equals(studentId))
+    if(!req.user?._id.equals(studentId))
     return notAuthorized(res);
 
     try {
