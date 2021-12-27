@@ -127,7 +127,7 @@ export const patchEvent = async (req,res) => {
                 body.image = req.file.id;
             }
             
-            event = await eventModel.updateOne({ _id: eventId }, body, { new: true });            
+            event = await eventModel.findByIdAndUpdate(eventId, body, { new: true });            
             return res.status(200).json({ event, message: "Event updated successfully." })
         
         } catch (error) {
