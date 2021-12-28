@@ -46,6 +46,11 @@ technologies such as NodeJS, ExpressJS and MongoDB.
 <p> Backend Repo Url : https://github.com/ninad-0408/CLUBSIIITM_Server 
 <p id="team-members"></p>
 
+<p id="links"></p>
+
+## Link
+We have hosted the website on heroku : <a href="https://clubsiiitmg.web.app/">Visit Us!</a>
+
 ## Team Members
 
 <p align="center">
