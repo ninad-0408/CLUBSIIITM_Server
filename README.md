@@ -49,7 +49,7 @@ technologies such as NodeJS, ExpressJS and MongoDB.
 <p id="links"></p>
 
 ## Link
-We have hosted the website on heroku : <a href="https://clubsiiitmg.web.app/">Visit Us!</a>
+We have hosted the website on Oracle : <a href="https://clubsiiitmg.web.app/">Visit Us!</a>
 
 ## Team Members
 
