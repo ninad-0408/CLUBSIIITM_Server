@@ -104,6 +104,9 @@ export const patchEvent = async (req,res) => {
     } catch (error) {
         return dataUnaccesable(res);  
     }
+
+    req.body.date = new Date(req.body.date + " " + req.body.time);
+    req.body.image = '';
     
     if(event!=null)
     {
@@ -124,8 +127,8 @@ export const patchEvent = async (req,res) => {
                     await gfs.delete(new mongoose.Types.ObjectId(event.image));
                 }
 
-                body.image = req.file.id;
             }
+            body.image = req.file.id;
             
             event = await eventModel.findByIdAndUpdate(eventId, body, { new: true });            
             return res.status(200).json({ event, message: "Event updated successfully." })
@@ -159,6 +162,9 @@ export const delEvent = async (req,res) => {
         return notAuthorized(res);
 
         try {
+            await clubModel.findByIdAndUpdate(club._id,{ $pull: { eventids: event._id } });
+            await eventModel.deleteOne({ _id: eventId });
+
             if(mongoose.Types.ObjectId.isValid(event.image))
             {
                 var gfs;
@@ -168,8 +174,6 @@ export const delEvent = async (req,res) => {
                 await gfs.delete(new mongoose.Types.ObjectId(event.image));
             }
 
-            await clubModel.findByIdAndUpdate(club._id,{ $pull: { eventids: event._id } });
-            await eventModel.deleteOne({ _id: eventId });
             return res.status(200).json({ eventId, message: "Event deleted successfully." })
         
         } catch (error) {

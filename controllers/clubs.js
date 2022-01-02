@@ -79,8 +79,8 @@ export const patchClub = async (req, res) => {
                     await gfs.delete(new mongoose.Types.ObjectId(club.image));
                 }
 
-                body.image = req.file.id;
             }
+            body.image = req.file.id;
 
             await clubModel.updateOne({ _id: clubId }, body);
             club = await clubModel.findById(clubId)
